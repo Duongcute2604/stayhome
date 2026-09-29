@@ -53,6 +53,16 @@ body {
   background-color: #d1d5db;
 }
 
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #b91c21;
+}
+
 .input {
   width: 100%;
   padding: 0.5rem 0.75rem;

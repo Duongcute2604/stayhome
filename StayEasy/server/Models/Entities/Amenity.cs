@@ -16,6 +16,12 @@ namespace server.Models.Entities
         [MaxLength(500)]
         public string? Description { get; set; }
 
+        [MaxLength(50)]
+        public string? Icon { get; set; }
+
+        [MaxLength(50)]
+        public string? Category { get; set; }
+
         // Navigation property
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
     }

@@ -1,5 +1,7 @@
-import type { FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
+import { locationService } from '../services/locationService'
 import type { RoomSearchParams } from '../types/room'
+import type { Location } from '../types/location'
 
 // ============================================================================
 // SEARCH FILTERS - Form tìm kiếm & lọc phòng
@@ -16,6 +18,12 @@ interface Props {
 }
 
 export default function SearchFilters({ filters, onChange, onSearch, isLoading }: Props) {
+  const [locations, setLocations] = useState<Location[]>([])
+
+  useEffect(() => {
+    locationService.getAll().then(setLocations).catch(() => {})
+  }, [])
+
   const set = (patch: Partial<RoomSearchParams>) => {
     onChange({ ...filters, ...patch })
   }
@@ -37,6 +45,24 @@ export default function SearchFilters({ filters, onChange, onSearch, isLoading }
             value={filters.search ?? ''}
             onChange={(e) => set({ search: e.target.value })}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1 text-left">Địa điểm</label>
+          <select
+            className="input"
+            value={filters.locationId ?? ''}
+            onChange={(e) =>
+              set({ locationId: e.target.value ? Number(e.target.value) : undefined })
+            }
+          >
+            <option value="">Tất cả địa điểm</option>
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>
+                {loc.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

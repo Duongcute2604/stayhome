@@ -9,6 +9,8 @@ import Booking from './pages/Booking'
 import MyBookings from './pages/MyBookings'
 import Admin from './pages/Admin'
 import Profile from './pages/Profile'
+import LocationManager from './pages/LocationManager'
+import AmenityManager from './pages/AmenityManager'
 
 // ============================================================================
 // APP COMPONENT - Root component định nghĩa routes
@@ -36,6 +38,8 @@ function App() {
 
           {/* Admin routes */}
           <Route path="/admin/*" element={<Admin />} />
+          <Route path="/admin/locations" element={<LocationManager />} />
+          <Route path="/admin/amenities" element={<AmenityManager />} />
         </Routes>
       </div>
     </AuthProvider>

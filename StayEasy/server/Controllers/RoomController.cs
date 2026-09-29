@@ -99,12 +99,19 @@ namespace server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _roomService.DeleteAsync(id);
-            if (!result)
+            try
             {
-                return NotFound(new { message = "Không tìm thấy phòng" });
+                var result = await _roomService.DeleteAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { message = "Không tìm thấy phòng" });
+                }
+                return NoContent();
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // ============================================================================

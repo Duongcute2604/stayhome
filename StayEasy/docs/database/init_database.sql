@@ -52,7 +52,9 @@ CREATE TABLE IF NOT EXISTS locations (
     name VARCHAR(255) NOT NULL,
     address VARCHAR(500),
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    image_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX uq_locations_name (name)
 ) ENGINE=InnoDB;
 
 -- ============================================================================
@@ -64,7 +66,10 @@ CREATE TABLE IF NOT EXISTS locations (
 CREATE TABLE IF NOT EXISTS amenities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(500)
+    description VARCHAR(500),
+    icon VARCHAR(50),
+    category VARCHAR(50),
+    UNIQUE INDEX uq_amenities_name (name)
 ) ENGINE=InnoDB;
 
 -- ============================================================================

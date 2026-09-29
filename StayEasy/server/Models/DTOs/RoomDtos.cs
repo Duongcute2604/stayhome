@@ -61,14 +61,6 @@ namespace server.Models.DTOs
         public string? Status { get; set; }
     }
 
-    // DTO tiện nghi
-    public class AmenityDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string? Description { get; set; }
-    }
-
     // Request tìm kiếm & lọc phòng (bind từ query string: GET /api/rooms/search?... )
     public class RoomSearchRequest
     {

@@ -19,6 +19,9 @@ namespace server.Models.Entities
         [MaxLength(2000)]
         public string? Description { get; set; }
 
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

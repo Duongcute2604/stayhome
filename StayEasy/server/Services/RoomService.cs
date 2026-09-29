@@ -53,6 +53,18 @@ namespace server.Services
         // ============================================================================
         public async Task<RoomDto> CreateAsync(CreateRoomRequest request)
         {
+            // Validate địa điểm tồn tại
+            if (!await _context.Locations.AnyAsync(l => l.Id == request.LocationId))
+                throw new Exception("Địa điểm không tồn tại");
+
+            // Validate tiện nghi tồn tại
+            if (request.AmenityIds != null && request.AmenityIds.Count > 0)
+            {
+                var count = await _context.Amenities.CountAsync(a => request.AmenityIds.Contains(a.Id));
+                if (count != request.AmenityIds.Count)
+                    throw new Exception("Có tiện nghi không tồn tại");
+            }
+
             var room = new Room
             {
                 LocationId = request.LocationId,
@@ -108,6 +120,13 @@ namespace server.Services
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room == null) return false;
+
+            // Chặn xóa phòng còn booking chưa hoàn tất (PENDING/CONFIRMED/CHECKED_IN)
+            var hasActiveBooking = await _context.Bookings.AnyAsync(b =>
+                b.RoomId == id &&
+                (b.Status == "PENDING" || b.Status == "CONFIRMED" || b.Status == "CHECKED_IN"));
+            if (hasActiveBooking)
+                throw new Exception("Không thể xóa phòng còn đặt phòng chưa hoàn tất");
 
             _context.Rooms.Remove(room);
             await _context.SaveChangesAsync();

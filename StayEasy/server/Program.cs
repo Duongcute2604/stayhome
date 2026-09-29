@@ -66,6 +66,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -133,5 +135,25 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+// ============================================================================
+// AUTO-MIGRATE - Tự chạy EF migration khi khởi động
+// ============================================================================
+// Tại sao cần: Container mới không có schema, backend tự tạo thay vì chạy tay.
+// EF là source of truth cho schema (xem server/Data/Migrations).
+// ============================================================================
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<StayEasyDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Auto-migrate database thất bại");
+    }
+}
 
 app.Run();
