@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { roomService } from '../services/roomService'
 import { bookingService } from '../services/bookingService'
 import type { Room } from '../types/room'
@@ -40,7 +41,12 @@ export default function Admin() {
 
   return (
     <div className="container py-8">
-      <h1 className="text-2xl font-bold mb-6">Quản trị</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-left">Quản trị</h1>
+        <Link to="/admin/dashboard" className="btn btn-primary">
+          Dashboard thống kê
+        </Link>
+      </div>
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6">

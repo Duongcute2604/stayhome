@@ -12,6 +12,7 @@ import Profile from './pages/Profile'
 import LocationManager from './pages/LocationManager'
 import AmenityManager from './pages/AmenityManager'
 import Notifications from './pages/Notifications'
+import Dashboard from './pages/Dashboard'
 
 // ============================================================================
 // APP COMPONENT - Root component định nghĩa routes
@@ -42,6 +43,7 @@ function App() {
           <Route path="/admin/*" element={<Admin />} />
           <Route path="/admin/locations" element={<LocationManager />} />
           <Route path="/admin/amenities" element={<AmenityManager />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </AuthProvider>
