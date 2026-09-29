@@ -1,0 +1,116 @@
+# ============================================================================
+# STAYEASY - DOCKER COMPOSE CONFIGURATION
+# ============================================================================
+# Mục đích: Định nghĩa và chạy toàn bộ hệ thống StayEasy bằng Docker
+# Cách dùng: docker compose up -d
+# ============================================================================
+
+# STAYEASY - DOCKER COMPOSE CONFIGURATION (không dùng `version`, đã obsolete)
+
+# ============================================================================
+# SERVICES - Các dịch vụ trong hệ thống
+# ============================================================================
+services:
+
+  # ==========================================================================
+  # SERVICE 1: FRONTEND (React + TypeScript + Vite)
+  # ==========================================================================
+  # Vai trò: Giao diện người dùng, chạy trên port 3000
+  # Tại sao dùng Node 20: Phiên bản LTS ổn định, tương thích tốt với Vite
+  # ==========================================================================
+  frontend:
+    build:
+      context: ./client          # Thư mục chứa Dockerfile frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"               # Nginx trong container nghe port 80
+    environment:
+      - VITE_API_URL=http://localhost:5000/api  # URL của backend API
+    depends_on:
+      - backend                 # Chỉ chạy sau khi backend đã khởi động
+    networks:
+      - stayeasy-network        # Mạng nội bộ để các service giao tiếp
+    restart: unless-stopped     # Tự động khởi động lại nếu crash
+
+  # ==========================================================================
+  # SERVICE 2: BACKEND (ASP.NET Core Web API)
+  # ==========================================================================
+  # Vai trò: Xử lý nghiệp vụ, REST API, chạy trên port 5000
+  # Tại sao dùng .NET 8.0: Phiên bản LTS mới nhất, hiệu năng cao
+  # ==========================================================================
+  backend:
+    build:
+      context: ./server          # Thư mục chứa Dockerfile backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"             # Backend Dockerfile EXPOSE 5000 (ASPNETCORE_URLS http://+:5000)
+    environment:
+      # Phải khớp với Program.cs: GetConnectionString("DefaultConnection") và Jwt:Secret/Issuer/Audience
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=StayEasy;User=stayeasy;Password=stayeasy123;
+      - Jwt__Secret=your-super-secret-key-change-in-production-min-32-chars
+      - Jwt__Issuer=StayEasy
+      - Jwt__Audience=StayEasyUsers
+      - Jwt__ExpirationHours=24
+      - Cors__AllowedOrigins__0=http://localhost:3000
+      - Cors__AllowedOrigins__1=http://localhost:5173
+    depends_on:
+      mysql:
+        condition: service_healthy  # Chờ MySQL healthy mới boot backend
+    networks:
+      - stayeasy-network
+    restart: unless-stopped
+    healthcheck:
+      # Backend tự kiểm tra qua endpoint /health (cần MapHealthChecks trong Program.cs)
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # SERVICE 3: MYSQL DATABASE
+  # ==========================================================================
+  # Vai trò: Lưu trữ toàn bộ dữ liệu của hệ thống
+  # Tại sao dùng MySQL 8.0: Phiên bản ổn định, phổ biến, tương thích EF Core
+  # ==========================================================================
+  mysql:
+    image: mysql:8.0             # Image chính thức từ Docker Hub
+    ports:
+      - "3307:3306"             # Host 3307 để tránh xung đột MySQL local (container vẫn 3306)
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123        # Mật khẩu root (chỉ dùng dev)
+      - MYSQL_DATABASE=StayEasy           # Tạo database tự động
+      - MYSQL_USER=stayeasy              # Tạo user tự động
+      - MYSQL_PASSWORD=stayeasy123        # Mật khẩu user
+    volumes:
+      # Tại sao cần volume: Giữ dữ liệu khi container bị xóa/recreate
+      - mysql-data:/var/lib/mysql         # Named volume để persist data
+      - ./docs/database/init_database.sql:/docker-entrypoint-initdb.d/init.sql  # Seed lần đầu
+    networks:
+      - stayeasy-network
+    restart: unless-stopped
+    healthcheck:
+      # Kiểm tra MySQL sẵn sàng trước khi backend kết nối (phải có user/pass)
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ============================================================================
+# NETWORKS - Mạng nội bộ cho các service giao tiếp
+# ============================================================================
+# Tại sao cần network riêng: Các service chỉ giao tiếp được với nhau
+#                             trong cùng mạng, tăng bảo mật
+# ============================================================================
+networks:
+  stayeasy-network:
+    driver: bridge              # Bridge network cho single-host deployment
+
+# ============================================================================
+# VOLUMES - Lưu trữ dữ liệu bền vững
+# ============================================================================
+# Tại sao cần volume: Dữ liệu database không mất khi container bị xóa
+# ============================================================================
+volumes:
+  mysql-data:                   # Named volume cho MySQL
