@@ -6,6 +6,7 @@ import { formatVnd } from '../utils/format'
 import { useAuth } from '../hooks/useAuth'
 import ReviewList from '../components/ReviewList'
 import ReviewForm from '../components/ReviewForm'
+import { useToast } from '../hooks/useToast'
 import type { Room } from '../types/room'
 import type { Review } from '../types/review'
 
@@ -16,6 +17,7 @@ import type { Review } from '../types/review'
 export default function RoomDetail() {
   const { id } = useParams<{ id: string }>()
   const { isAuthenticated, user } = useAuth()
+  const { toast } = useToast()
   const [room, setRoom] = useState<Room | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -58,7 +60,7 @@ export default function RoomDetail() {
         loadRoom(roomId) // Cập nhật lại rating trung bình
       }
     } catch (err) {
-      alert('Không thể xóa đánh giá')
+      toast('Không thể xóa đánh giá', 'error')
     }
   }
 

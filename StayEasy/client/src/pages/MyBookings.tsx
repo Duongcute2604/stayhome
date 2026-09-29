@@ -3,6 +3,7 @@ import { bookingService } from '../services/bookingService'
 import { paymentService } from '../services/paymentService'
 import { formatVnd } from '../utils/format'
 import { formatDateTime } from '../utils/date'
+import { useToast } from '../hooks/useToast'
 import type { Booking } from '../types/booking'
 import type { Payment } from '../types/payment'
 
@@ -11,6 +12,7 @@ import type { Payment } from '../types/payment'
 // ============================================================================
 
 export default function MyBookings() {
+  const { toast } = useToast()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [payments, setPayments] = useState<Record<number, Payment>>({})
   const [isLoading, setIsLoading] = useState(true)
@@ -56,12 +58,13 @@ export default function MyBookings() {
     if (!confirm('Thanh toán mock (luôn thành công). Tiếp tục?')) return
     try {
       await paymentService.pay({ bookingId, method: 'MOMO' })
+      toast('Thanh toán thành công', 'success')
       loadData()
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
         'Thanh toán thất bại'
-      alert(msg)
+      toast(msg, 'error')
     }
   }
 

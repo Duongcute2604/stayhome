@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { locationService } from '../services/locationService'
 import LocationForm from '../components/LocationForm'
+import { useToast } from '../hooks/useToast'
 import type { Location } from '../types/location'
 
 // ============================================================================
@@ -10,6 +11,7 @@ import type { Location } from '../types/location'
 // ============================================================================
 
 export default function LocationManager() {
+  const { toast } = useToast()
   const [locations, setLocations] = useState<Location[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -36,12 +38,13 @@ export default function LocationManager() {
     if (!confirm('Bạn có chắc muốn xóa địa điểm này?')) return
     try {
       await locationService.delete(id)
+      toast('Đã xóa địa điểm', 'success')
       loadLocations()
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
         'Không thể xóa địa điểm'
-      alert(msg)
+      toast(msg, 'error')
     }
   }
 
@@ -100,6 +103,7 @@ export default function LocationManager() {
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false)
+            toast('Lưu thành công', 'success')
             loadLocations()
           }}
         />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { amenityService } from '../services/amenityService'
 import AmenityForm from '../components/AmenityForm'
+import { useToast } from '../hooks/useToast'
 import type { Amenity } from '../types/amenity'
 
 // ============================================================================
@@ -8,6 +9,7 @@ import type { Amenity } from '../types/amenity'
 // ============================================================================
 
 export default function AmenityManager() {
+  const { toast } = useToast()
   const [amenities, setAmenities] = useState<Amenity[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -34,12 +36,13 @@ export default function AmenityManager() {
     if (!confirm('Bạn có chắc muốn xóa tiện nghi này?')) return
     try {
       await amenityService.delete(id)
+      toast('Đã xóa tiện nghi', 'success')
       loadAmenities()
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
         'Không thể xóa tiện nghi'
-      alert(msg)
+      toast(msg, 'error')
     }
   }
 
@@ -97,6 +100,7 @@ export default function AmenityManager() {
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false)
+            toast('Lưu thành công', 'success')
             loadAmenities()
           }}
         />

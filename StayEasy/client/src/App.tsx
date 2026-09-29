@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -24,6 +25,7 @@ import Dashboard from './pages/Dashboard'
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <div className="min-h-screen bg-gray-50">
         <Routes>
           {/* Public routes */}
@@ -46,6 +48,7 @@ function App() {
           <Route path="/admin/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
+      </ToastProvider>
     </AuthProvider>
   )
 }
