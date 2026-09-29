@@ -7,10 +7,10 @@ using System.Security.Claims;
 namespace server.Controllers
 {
     // ============================================================================
-    // BOOKING CONTROLLER - Xử lý API đặt phòng
+    // BOOKING CONTROLLER - Xử lý API đặt phòng (route số nhiều /api/bookings)
     // ============================================================================
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/bookings")]
     [Authorize]
     public class BookingController : ControllerBase
     {

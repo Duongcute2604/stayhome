@@ -48,6 +48,16 @@ namespace server.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            // Thông báo chào mừng
+            _context.Notifications.Add(new Notification
+            {
+                UserId = user.Id,
+                Title = "Chào mừng đến StayEasy",
+                Message = "Cảm ơn bạn đã đăng ký, chúc bạn tìm được phòng ưng ý",
+                Type = "INFO"
+            });
+            await _context.SaveChangesAsync();
+
             // Tạo JWT token
             var token = GenerateJwtToken(user);
 

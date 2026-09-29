@@ -129,6 +129,7 @@ namespace server.Services
             };
 
             _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync(); // Lưu trước để có booking.Id thật
 
             // Thêm vào lịch sử trạng thái
             _context.BookingStatusHistories.Add(new BookingStatusHistory
@@ -136,6 +137,15 @@ namespace server.Services
                 BookingId = booking.Id,
                 Status = "PENDING",
                 Note = "Tạo đặt phòng mới"
+            });
+
+            // Thông báo cho khách: đặt phòng thành công
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Title = "Đặt phòng thành công",
+                Message = $"Bạn đã đặt phòng {room.Name} thành công, đang chờ xác nhận",
+                Type = "INFO"
             });
 
             await _context.SaveChangesAsync();
@@ -159,6 +169,15 @@ namespace server.Services
                 BookingId = booking.Id,
                 Status = request.Status,
                 Note = "Cập nhật trạng thái"
+            });
+
+            // Thông báo cho khách khi Admin/Employee đổi trạng thái
+            _context.Notifications.Add(new Notification
+            {
+                UserId = booking.UserId,
+                Title = "Cập nhật đặt phòng",
+                Message = $"Đặt phòng #{booking.Id} chuyển sang trạng thái {request.Status}",
+                Type = request.Status == "CANCELLED" ? "WARNING" : "INFO"
             });
 
             await _context.SaveChangesAsync();
@@ -193,6 +212,15 @@ namespace server.Services
                 BookingId = booking.Id,
                 Status = "CANCELLED",
                 Note = "Hủy đặt phòng"
+            });
+
+            // Thông báo xác nhận hủy
+            _context.Notifications.Add(new Notification
+            {
+                UserId = booking.UserId,
+                Title = "Đã hủy đặt phòng",
+                Message = $"Đặt phòng #{booking.Id} đã được hủy",
+                Type = "WARNING"
             });
 
             await _context.SaveChangesAsync();

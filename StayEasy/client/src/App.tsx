@@ -11,6 +11,7 @@ import Admin from './pages/Admin'
 import Profile from './pages/Profile'
 import LocationManager from './pages/LocationManager'
 import AmenityManager from './pages/AmenityManager'
+import Notifications from './pages/Notifications'
 
 // ============================================================================
 // APP COMPONENT - Root component định nghĩa routes
@@ -35,6 +36,7 @@ function App() {
           <Route path="/booking/:roomId" element={<Booking />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<Notifications />} />
 
           {/* Admin routes */}
           <Route path="/admin/*" element={<Admin />} />

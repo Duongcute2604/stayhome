@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import NotificationBell from '../components/NotificationBell'
 
 // ============================================================================
 // HOME PAGE - Trang chủ
@@ -15,11 +16,14 @@ export default function Home() {
         <div className="container text-center">
           <h1 className="text-4xl font-bold mb-4">StayEasy</h1>
           <p className="text-xl mb-8">Hệ thống đặt phòng và quản lý homestay</p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center items-center">
             {isAuthenticated ? (
-              <Link to="/rooms" className="btn btn-primary bg-white text-blue-600">
-                Xem phòng
-              </Link>
+              <>
+                <Link to="/rooms" className="btn btn-primary bg-white text-blue-600">
+                  Xem phòng
+                </Link>
+                <NotificationBell />
+              </>
             ) : (
               <>
                 <Link to="/login" className="btn btn-primary bg-white text-blue-600">
