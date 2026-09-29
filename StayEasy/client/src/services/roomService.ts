@@ -1,5 +1,12 @@
 import api from './api'
-import type { Room, RoomSearchParams, CreateRoomRequest } from '../types/room'
+import type { Room, RoomSearchParams, CreateRoomRequest, PagedResult } from '../types/room'
+
+// Shape ApiResponse backend: { data, message, statusCode }
+interface ApiResponse<T> {
+  data: T
+  message: string
+  statusCode: number
+}
 
 // ============================================================================
 // ROOM SERVICE - Xử lý các API liên quan đến phòng
@@ -10,6 +17,12 @@ export const roomService = {
   async getRooms(params?: RoomSearchParams): Promise<Room[]> {
     const response = await api.get('/rooms', { params })
     return response.data
+  },
+
+  // Tìm kiếm & lọc phòng (mới, có phân trang - GET /api/rooms/search)
+  async searchRooms(params: RoomSearchParams): Promise<PagedResult<Room>> {
+    const response = await api.get<ApiResponse<PagedResult<Room>>>('/rooms/search', { params })
+    return response.data.data
   },
 
   // Lấy chi tiết phòng

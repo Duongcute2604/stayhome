@@ -68,4 +68,20 @@ namespace server.Models.DTOs
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
     }
+
+    // Request tìm kiếm & lọc phòng (bind từ query string: GET /api/rooms/search?... )
+    public class RoomSearchRequest
+    {
+        public string? Search { get; set; }
+        public int? LocationId { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public int? Capacity { get; set; }
+        public List<int>? AmenityIds { get; set; }
+        public string? SortBy { get; set; } // price_asc, price_desc, newest
+        public DateTime? CheckIn { get; set; }
+        public DateTime? CheckOut { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 12;
+    }
 }

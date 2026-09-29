@@ -1,3 +1,4 @@
+using server.Models.Common;
 using server.Models.DTOs;
 
 namespace server.Services
@@ -13,5 +14,6 @@ namespace server.Services
         Task<RoomDto?> UpdateAsync(int id, UpdateRoomRequest request);
         Task<bool> DeleteAsync(int id);
         Task<bool> CheckAvailabilityAsync(int roomId, DateTime checkIn, DateTime checkOut);
+        Task<PagedResult<RoomDto>> SearchAsync(RoomSearchRequest request);
     }
 }

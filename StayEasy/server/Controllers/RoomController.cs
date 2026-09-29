@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Models.Common;
 using server.Models.DTOs;
 using server.Services;
 
 namespace server.Controllers
 {
     // ============================================================================
-    // ROOM CONTROLLER - Xử lý API phòng
+    // ROOM CONTROLLER - Xử lý API phòng (route số nhiều /api/rooms cho khớp FE)
     // ============================================================================
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/rooms")]
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
@@ -30,9 +31,24 @@ namespace server.Controllers
         }
 
         // ============================================================================
-        // GET /api/room/{id} - Lấy chi tiết phòng
+        // GET /api/rooms/search - Tìm kiếm & lọc phòng (mới, trả ApiResponse chuẩn)
         // ============================================================================
-        [HttpGet("{id}")]
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] RoomSearchRequest request)
+        {
+            var result = await _roomService.SearchAsync(request);
+            return Ok(new ApiResponse<PagedResult<RoomDto>>
+            {
+                Data = result,
+                Message = "Success",
+                StatusCode = 200
+            });
+        }
+
+        // ============================================================================
+        // GET /api/rooms/{id} - Lấy chi tiết phòng
+        // ============================================================================
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var room = await _roomService.GetByIdAsync(id);
@@ -64,7 +80,7 @@ namespace server.Controllers
         // ============================================================================
         // PUT /api/room/{id} - Cập nhật phòng (chỉ Admin)
         // ============================================================================
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRoomRequest request)
         {
@@ -79,7 +95,7 @@ namespace server.Controllers
         // ============================================================================
         // DELETE /api/room/{id} - Xóa phòng (chỉ Admin)
         // ============================================================================
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -94,7 +110,7 @@ namespace server.Controllers
         // ============================================================================
         // GET /api/room/{id}/availability - Kiểm tra phòng trống
         // ============================================================================
-        [HttpGet("{id}/availability")]
+        [HttpGet("{id:int}/availability")]
         public async Task<IActionResult> CheckAvailability(int id, [FromQuery] DateTime checkIn, [FromQuery] DateTime checkOut)
         {
             var isAvailable = await _roomService.CheckAvailabilityAsync(id, checkIn, checkOut);

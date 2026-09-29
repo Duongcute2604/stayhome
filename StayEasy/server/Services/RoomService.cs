@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using server.Data;
+using server.Models.Common;
 using server.Models.DTOs;
 using server.Models.Entities;
 
@@ -126,6 +127,87 @@ namespace server.Services
                 b.CheckOut > checkIn);
 
             return !hasConflict;
+        }
+
+        // ============================================================================
+        // TÌM KIẾM & LỌC PHÒNG (có phân trang)
+        // ============================================================================
+        // Tại sao dùng IQueryable: Chỉ build 1 query SQL duy nhất (WHERE + ORDER + LIMIT)
+        // ============================================================================
+        public async Task<PagedResult<RoomDto>> SearchAsync(RoomSearchRequest request)
+        {
+            var page = request.Page < 1 ? 1 : request.Page;
+            var pageSize = request.PageSize < 1 ? 12 : Math.Min(request.PageSize, 50);
+
+            var query = _context.Rooms
+                .Include(r => r.Location)
+                .Include(r => r.RoomImages)
+                .Include(r => r.RoomAmenities)
+                    .ThenInclude(ra => ra.Amenity)
+                .AsQueryable();
+
+            // Từ khóa: tìm trong tên + mô tả
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var keyword = request.Search.Trim();
+                query = query.Where(r => r.Name.Contains(keyword) ||
+                    (r.Description != null && r.Description.Contains(keyword)));
+            }
+
+            if (request.LocationId.HasValue)
+                query = query.Where(r => r.LocationId == request.LocationId.Value);
+
+            if (request.MinPrice.HasValue)
+                query = query.Where(r => r.PricePerDay >= request.MinPrice.Value);
+
+            if (request.MaxPrice.HasValue)
+                query = query.Where(r => r.PricePerDay <= request.MaxPrice.Value);
+
+            if (request.Capacity.HasValue)
+                query = query.Where(r => r.Capacity >= request.Capacity.Value);
+
+            // Phòng phải có TẤT CẢ tiện nghi được chọn
+            if (request.AmenityIds != null && request.AmenityIds.Count > 0)
+            {
+                var ids = request.AmenityIds;
+                query = query.Where(r =>
+                    r.RoomAmenities.Count(ra => ids.Contains(ra.AmenityId)) == ids.Count);
+            }
+
+            // Chỉ lấy phòng trống trong khoảng check-in/check-out
+            if (request.CheckIn.HasValue && request.CheckOut.HasValue &&
+                request.CheckOut > request.CheckIn)
+            {
+                var ci = request.CheckIn.Value;
+                var co = request.CheckOut.Value;
+                query = query.Where(r => !_context.Bookings.Any(b =>
+                    b.RoomId == r.Id &&
+                    b.Status != "CANCELLED" &&
+                    b.CheckIn < co &&
+                    b.CheckOut > ci));
+            }
+
+            // Sắp xếp
+            query = request.SortBy switch
+            {
+                "price_asc" => query.OrderBy(r => r.PricePerDay),
+                "price_desc" => query.OrderByDescending(r => r.PricePerDay),
+                _ => query.OrderByDescending(r => r.Id), // newest
+            };
+
+            var total = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<RoomDto>
+            {
+                Items = items.Select(MapToDto).ToList(),
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         // ============================================================================
