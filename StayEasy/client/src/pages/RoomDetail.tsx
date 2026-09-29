@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { roomService } from '../services/roomService'
+import { reviewService } from '../services/reviewService'
+import { formatVnd } from '../utils/format'
 import { useAuth } from '../hooks/useAuth'
+import ReviewList from '../components/ReviewList'
+import ReviewForm from '../components/ReviewForm'
 import type { Room } from '../types/room'
+import type { Review } from '../types/review'
 
 // ============================================================================
 // ROOM DETAIL PAGE - Trang chi tiết phòng
@@ -10,14 +15,17 @@ import type { Room } from '../types/room'
 
 export default function RoomDetail() {
   const { id } = useParams<{ id: string }>()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [room, setRoom] = useState<Room | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (id) {
-      loadRoom(parseInt(id))
+      const roomId = parseInt(id)
+      loadRoom(roomId)
+      loadReviews(roomId)
     }
   }, [id])
 
@@ -29,6 +37,28 @@ export default function RoomDetail() {
       setError('Không thể tải thông tin phòng')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadReviews = async (roomId: number) => {
+    try {
+      setReviews(await reviewService.getByRoom(roomId))
+    } catch {
+      // Không chặn trang nếu lỗi tải reviews
+    }
+  }
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return
+    try {
+      await reviewService.remove(reviewId)
+      if (id) {
+        const roomId = parseInt(id)
+        loadReviews(roomId)
+        loadRoom(roomId) // Cập nhật lại rating trung bình
+      }
+    } catch (err) {
+      alert('Không thể xóa đánh giá')
     }
   }
 
@@ -58,14 +88,26 @@ export default function RoomDetail() {
 
         {/* Thông tin */}
         <div>
-          <h1 className="text-2xl font-bold mb-4">{room.name}</h1>
-          <p className="text-gray-600 mb-4">{room.description}</p>
+          <h1 className="text-2xl font-bold mb-4 text-left">{room.name}</h1>
+          <p className="text-gray-600 mb-4 text-left">{room.description}</p>
 
           <div className="space-y-2 mb-6">
-            <p><strong>Sức chứa:</strong> {room.capacity} khách</p>
-            <p><strong>Giá theo giờ:</strong> {room.pricePerHour.toLocaleString('vi-VN')}đ</p>
-            <p><strong>Giá theo ngày:</strong> {room.pricePerDay.toLocaleString('vi-VN')}đ</p>
-            <p><strong>Trạng thái:</strong> {room.status}</p>
+            <div className="flex justify-between">
+              <span className="text-left"><strong>Sức chứa:</strong></span>
+              <span className="text-right">{room.capacity} khách</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-left"><strong>Giá theo giờ:</strong></span>
+              <span className="number-vn text-right">{formatVnd(room.pricePerHour)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-left"><strong>Giá theo ngày:</strong></span>
+              <span className="number-vn text-right">{formatVnd(room.pricePerDay)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-left"><strong>Trạng thái:</strong></span>
+              <span className="text-right">{room.status}</span>
+            </div>
           </div>
 
           {/* Tiện nghi */}
@@ -95,6 +137,30 @@ export default function RoomDetail() {
             </Link>
           )}
         </div>
+      </div>
+
+      {/* Đánh giá */}
+      <div className="mt-12">
+        <h2 className="text-xl font-bold mb-4 text-left">
+          Đánh giá ⭐ {room.avgRating.toFixed(1)} ({room.reviewCount} đánh giá)
+        </h2>
+
+        {isAuthenticated && (
+          <ReviewForm
+            roomId={room.id}
+            onSuccess={() => {
+              loadReviews(room.id)
+              loadRoom(room.id)
+            }}
+          />
+        )}
+
+        <ReviewList
+          reviews={reviews}
+          currentUserId={user?.id}
+          isAdmin={user?.role === 'Admin'}
+          onDelete={handleDeleteReview}
+        />
       </div>
     </div>
   )

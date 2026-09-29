@@ -90,12 +90,11 @@ namespace server.Services
         // HELPER METHODS
         // ============================================================================
 
-        // Hash password bằng SHA256 (nên dùng BCrypt trong production)
+        // Hash password bằng SHA256 (hex lowercase, khớp seed data trong init SQL)
         private static string HashPassword(string password)
         {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+            return Convert.ToHexString(bytes).ToLowerInvariant();
         }
 
         // Verify password

@@ -18,6 +18,8 @@ export interface Room {
   status: RoomStatus
   images: string[]
   amenities: Amenity[]
+  avgRating: number
+  reviewCount: number
   createdAt: string
 }
 

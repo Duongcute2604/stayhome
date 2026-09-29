@@ -130,6 +130,15 @@ namespace server.Data
             });
 
             // ============================================================================
+            // REVIEW CONFIGURATION - 1 user chỉ 1 review/phòng
+            // ============================================================================
+            modelBuilder.Entity<Review>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.UserId, e.RoomId }).IsUnique();
+            });
+
+            // ============================================================================
             // INDEX TỐI ƯU SEARCH (theo skill stayeasy-mysql-db)
             // ============================================================================
             modelBuilder.Entity<Room>(entity =>

@@ -42,5 +42,6 @@ namespace server.Models.Entities
         // Navigation properties
         public ICollection<RoomImage> RoomImages { get; set; } = new List<RoomImage>();
         public ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

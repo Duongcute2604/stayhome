@@ -20,6 +20,8 @@ namespace server.Models.DTOs
         public string? LocationName { get; set; }
         public List<string> Images { get; set; } = new();
         public List<AmenityDto> Amenities { get; set; } = new();
+        public double AvgRating { get; set; }
+        public int ReviewCount { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

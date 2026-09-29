@@ -233,12 +233,12 @@ INSERT INTO users (email, password_hash, full_name, phone, role) VALUES
 ('customer1@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Văn A', '0901234569', 'Customer'),
 ('customer2@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Trần Thị B', '0901234570', 'Customer');
 
--- 13.2. Locations
-INSERT INTO locations (name, address, description) VALUES
-('Hà Nội - Hoàn Kiếm', '123 Phố Cổ, Hoàn Kiếm, Hà Nội', 'Khu vực trung tâm Hà Nội, gần Hồ Gươm'),
-('Hà Nội - Ba Đình', '456 Đội Cấn, Ba Đình, Hà Nội', 'Khu vực yên tĩnh, gần Quảng trường Ba Đình'),
-('TP.HCM - Quận 1', '789 Nguyễn Huệ, Quận 1, TP.HCM', 'Trung tâm TP.HCM, gần Bến Nhà Rồng'),
-('Đà Nẵng - Hải Châu', '321 Trần Phú, Hải Châu, Đà Nẵng', 'Gần biển Mỹ Khê, khu vực du lịch');
+-- 13.2. Locations (image_url tro toi anh mau noi bo)
+INSERT INTO locations (name, address, description, image_url) VALUES
+('Hà Nội - Hoàn Kiếm', '123 Phố Cổ, Hoàn Kiếm, Hà Nội', 'Khu vực trung tâm Hà Nội, gần Hồ Gươm', '/images/locations/loc-1.svg'),
+('Hà Nội - Ba Đình', '456 Đội Cấn, Ba Đình, Hà Nội', 'Khu vực yên tĩnh, gần Quảng trường Ba Đình', '/images/locations/loc-2.svg'),
+('TP.HCM - Quận 1', '789 Nguyễn Huệ, Quận 1, TP.HCM', 'Trung tâm TP.HCM, gần Bến Nhà Rồng', '/images/locations/loc-3.svg'),
+('Đà Nẵng - Hải Châu', '321 Trần Phú, Hải Châu, Đà Nẵng', 'Gần biển Mỹ Khê, khu vực du lịch', '/images/locations/loc-4.svg');
 
 -- 13.3. Amenities
 INSERT INTO amenities (name, description) VALUES
@@ -266,20 +266,18 @@ INSERT INTO rooms (location_id, name, description, price_per_hour, price_per_day
 (4, 'Phòng Deluxe 402', 'Phòng cao cấp view biển', 220000, 1300000, 2, 'AVAILABLE'),
 (4, 'Phòng Suite 403', 'Phòng suite view biển, có bồi tắm', 350000, 2000000, 4, 'AVAILABLE');
 
--- 13.5. Room Images
+-- 13.5. Room Images (anh mau noi bo, moi phong 1 anh)
 INSERT INTO room_images (room_id, image_url) VALUES
-(1, 'https://example.com/rooms/101_1.jpg'),
-(1, 'https://example.com/rooms/101_2.jpg'),
-(2, 'https://example.com/rooms/102_1.jpg'),
-(2, 'https://example.com/rooms/102_2.jpg'),
-(3, 'https://example.com/rooms/103_1.jpg'),
-(4, 'https://example.com/rooms/201_1.jpg'),
-(5, 'https://example.com/rooms/202_1.jpg'),
-(6, 'https://example.com/rooms/301_1.jpg'),
-(7, 'https://example.com/rooms/302_1.jpg'),
-(8, 'https://example.com/rooms/401_1.jpg'),
-(9, 'https://example.com/rooms/402_1.jpg'),
-(10, 'https://example.com/rooms/403_1.jpg');
+(1, '/images/rooms/room-1.svg'),
+(2, '/images/rooms/room-2.svg'),
+(3, '/images/rooms/room-3.svg'),
+(4, '/images/rooms/room-4.svg'),
+(5, '/images/rooms/room-5.svg'),
+(6, '/images/rooms/room-6.svg'),
+(7, '/images/rooms/room-7.svg'),
+(8, '/images/rooms/room-8.svg'),
+(9, '/images/rooms/room-9.svg'),
+(10, '/images/rooms/room-10.svg');
 
 -- 13.6. Room Amenities
 INSERT INTO room_amenities (room_id, amenity_id) VALUES
@@ -317,11 +315,11 @@ INSERT INTO reviews (user_id, room_id, rating, comment) VALUES
 (4, 3, 5, 'Phòng suite rất rộng, view Hồ Gươm tuyệt vời'),
 (4, 1, 4, 'Phòng ổn, sẽ quay lại lần sau');
 
--- 13.10. Review Images
+-- 13.10. Review Images (dung lai anh phong, hien chua hien thi o UI)
 INSERT INTO review_images (review_id, image_url) VALUES
-(1, 'https://example.com/reviews/1_1.jpg'),
-(1, 'https://example.com/reviews/1_2.jpg'),
-(3, 'https://example.com/reviews/3_1.jpg');
+(1, '/images/rooms/room-1.svg'),
+(1, '/images/rooms/room-2.svg'),
+(3, '/images/rooms/room-3.svg');
 
 -- 13.11. Notifications
 INSERT INTO notifications (user_id, title, message, type) VALUES

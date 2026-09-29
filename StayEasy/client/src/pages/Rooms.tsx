@@ -85,6 +85,9 @@ export default function Rooms() {
             </div>
             <h3 className="text-lg font-semibold mb-2 text-left">{room.name}</h3>
             <p className="text-gray-600 text-sm mb-2 text-left">{room.description}</p>
+            <p className="text-sm mb-2 text-left">
+              ⭐ {room.avgRating.toFixed(1)} ({room.reviewCount} đánh giá)
+            </p>
             <div className="flex justify-between items-center">
               <span className="text-blue-600 font-semibold number-vn text-right">
                 {formatVnd(room.pricePerDay)}/đêm

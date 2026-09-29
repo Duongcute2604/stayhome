@@ -26,6 +26,7 @@ namespace server.Services
             var rooms = await _context.Rooms
                 .Include(r => r.Location)
                 .Include(r => r.RoomImages)
+                .Include(r => r.Reviews)
                 .Include(r => r.RoomAmenities)
                     .ThenInclude(ra => ra.Amenity)
                 .ToListAsync();
@@ -41,6 +42,7 @@ namespace server.Services
             var room = await _context.Rooms
                 .Include(r => r.Location)
                 .Include(r => r.RoomImages)
+                .Include(r => r.Reviews)
                 .Include(r => r.RoomAmenities)
                     .ThenInclude(ra => ra.Amenity)
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -161,6 +163,7 @@ namespace server.Services
             var query = _context.Rooms
                 .Include(r => r.Location)
                 .Include(r => r.RoomImages)
+                .Include(r => r.Reviews)
                 .Include(r => r.RoomAmenities)
                     .ThenInclude(ra => ra.Amenity)
                 .AsQueryable();
@@ -250,8 +253,13 @@ namespace server.Services
                 {
                     Id = ra.Amenity!.Id,
                     Name = ra.Amenity.Name,
-                    Description = ra.Amenity.Description
+                    Description = ra.Amenity.Description,
+                    Icon = ra.Amenity.Icon,
+                    Category = ra.Amenity.Category,
+                    RoomCount = 0 // Không cần đếm ở đây để tránh query lồng
                 }).ToList(),
+                AvgRating = room.Reviews.Any() ? room.Reviews.Average(r => r.Rating) : 0,
+                ReviewCount = room.Reviews.Count,
                 CreatedAt = room.CreatedAt
             };
         }
