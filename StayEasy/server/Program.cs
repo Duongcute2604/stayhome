@@ -71,6 +71,7 @@ builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

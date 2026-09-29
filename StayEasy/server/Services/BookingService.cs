@@ -214,12 +214,23 @@ namespace server.Services
                 Note = "Hủy đặt phòng"
             });
 
+            // Tự động hoàn tiền nếu đã thanh toán (trước 24h: 100%, trong 24h: 50%)
+            var paidPayment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.BookingId == booking.Id && p.Status == "PAID");
+            string cancelMsg = $"Đặt phòng #{booking.Id} đã được hủy";
+            if (paidPayment != null)
+            {
+                paidPayment.Status = "REFUNDED";
+                paidPayment.RefundAmount = PaymentService.CalcRefund(booking);
+                cancelMsg += $", đã hoàn {paidPayment.RefundAmount:N0}đ";
+            }
+
             // Thông báo xác nhận hủy
             _context.Notifications.Add(new Notification
             {
                 UserId = booking.UserId,
                 Title = "Đã hủy đặt phòng",
-                Message = $"Đặt phòng #{booking.Id} đã được hủy",
+                Message = cancelMsg,
                 Type = "WARNING"
             });
 

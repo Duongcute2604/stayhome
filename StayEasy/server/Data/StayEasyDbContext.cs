@@ -27,6 +27,7 @@ namespace server.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ReviewImage> ReviewImages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -136,6 +137,27 @@ namespace server.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => new { e.UserId, e.RoomId }).IsUnique();
+            });
+
+            // ============================================================================
+            // PAYMENT CONFIGURATION - 1 booking 1 payment (chống trả trùng ở DB)
+            // ============================================================================
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.BookingId).IsUnique();
+                entity.Property(e => e.Amount).HasPrecision(18, 2);
+                entity.Property(e => e.RefundAmount).HasPrecision(18, 2);
+
+                entity.HasOne(e => e.Booking)
+                    .WithMany()
+                    .HasForeignKey(e => e.BookingId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ============================================================================
